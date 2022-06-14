@@ -19,20 +19,22 @@ class App
   subcommand_option_handling :normal
   arguments :strict
 
-  desc 'Use this flag to specify the name of the to-do list file.'
-  # default_value 'the default'
-  # arg_name 'The name of the argument'
-  flag [:f]
+  desc 'Path to the todo file'
+  default_value '~/.todo.txt'
+  arg_name 'todo_file'
+  flag [:f, :filename]
 
-  desc 'Create a new task'
-  arg_name 'Describe arguments to new here'
+  desc 'Create a new task in the task list'
+  long_desc "A task has a name and a priority. By default, new tasks have the lowest possible priority, though this can be overridden."
+  arg_name 'task_name'
   command :new do |c|
-    c.desc 'Specify that this new task should be first in the list.'
+    c.desc 'set the priority of the new task, 1 being the highest'
+    c.arg_name "priority"
+    c.flag :p
+
+    c.desc 'put the new task first in the list'
     c.switch :f
 
-    c.desc 'Specify the position for this new task.'
-    c.default_value 'default'
-    c.flag :priority
     c.action do |global_options,options,args|
       puts "Global:"
       puts "-f - #{global_options[:f]}"
