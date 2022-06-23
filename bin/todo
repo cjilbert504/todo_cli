@@ -45,16 +45,16 @@ class App
     end
   end
 
-  desc 'Show all tasks'
-  # arg_name 'Describe arguments to list here'
-  command :list do |c|
+  desc 'List tasks'
+  command [:list, :ls] do |c|
     c.flag :s
-    c.action do |global_options,options,args|
-      # puts "Global:"
-      # puts "-f - #{global_toptions[:f]}"
-      # puts "Command:"
-      # puts "-s - #{options[:s]}"
 
+    c.desc "Format of the output"
+    c.arg_name "csv|pretty"
+    c.default_value "pretty"
+    c.flag :format
+
+    c.action do |global_options,options,args|
       todos = read_todos(global_options[:filename])
 
       if options[:s] == "name"
@@ -62,7 +62,13 @@ class App
       end
 
       todos.each do |todo|
-        puts todo
+        if options[:format] == "pretty"
+          # Use the pretty format
+        elsif options[:format] == "csv"
+          # Use the machine-readable CSV format
+          complete_flag = completed ? "DONE" : "INCOMPLETE"
+          printf("%d, %s, %s, %s, %s\n", index, name, complete_flag, created, completed)
+        end
       end
     end
   end
