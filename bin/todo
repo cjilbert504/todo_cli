@@ -12,6 +12,8 @@ end
 class App
   extend GLI::App
 
+  config_file File.join(ENV["HOME"], ".todo.rc.yaml")
+
   program_desc 'Describe your application here'
 
   version Todo::VERSION
@@ -24,8 +26,23 @@ class App
   arg_name 'todo_file'
   flag [:f, :filename]
 
+  desc "Password for JIRA"
+  default_value "none"
+  arg_name "password"
+  flag [:password]
+
+  desc "URL to JIRA"
+  default_value "none"
+  arg_name "url"
+  flag [:url]
+
+  desc "Username for JIRA"
+  default_value "none"
+  arg_name "username"
+  flag [:username]
+
   desc 'Create a new task in the task list'
-  long_desc "A task has a name and a priority. By default, new tasks have the lowest possible priority, though this can be overridden."
+  long_desc "A task has a name and a priority. By default, new tasks have the lowest possible priority, though this can be overridden. If task_name is omitted, read tasks from the standard input."
   arg_name 'task_name'
   command :new do |c|
     c.desc 'set the priority of the new task, 1 being the highest'
@@ -34,6 +51,11 @@ class App
 
     c.desc 'put the new task first in the list'
     c.switch :f
+
+    c.desc "group for JIRA"
+    c.default_value "non"
+    c.arg_name "group_name"
+    c.flag [:group]
 
     c.action do |global_options, options, task_names|
       File.open(global_options[:filename], "a+") do |todo_file|
