@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
-$LOAD_PATH << File.expand_path(File.dirname(__FILE__) + "/../lib")
+# $LOAD_PATH << File.expand_path(File.dirname(__FILE__) + "/../lib")
+
 require 'gli'
 require 'todo/version'
 require 'todo/todo.rb'
@@ -76,13 +77,29 @@ class App
 
   desc 'List tasks'
   command [:list, :ls] do |c|
+
+    output_formats = {
+      "csv" => Todo::Format::CSV.new,
+      "pretty" => Todo::Format::Pretty.new
+    }
+
     c.flag :s
 
     c.desc "Format of the output (pretty for TTY, csv otherwise)"
-    c.arg_name "csv|pretty"
+    c.arg_name output_formats.keys.join("|")
     c.flag :format
 
-    c.action do |global_options,options,args|
+    c.action do |global_options, options, args|
+      formatter = output_formats[options[:format]]
+
+      File.open(global_options[:filename]) do |tasklist|
+        index = 1
+        Todo::Task.from_file(tasklist).each do |task|
+          formatter.format(index, task)
+          index += 1
+        end
+      end
+
       if options[:format] = nil
         if STDOUT.tty?
           options[:format] = "pretty"
@@ -91,7 +108,7 @@ class App
         end
       end
 
-      todos = read_todos(global_options[:filename])
+      # todos = read_todos(global_options[:filename])
 
       if options[:s] == "name"
         todos = todos.sort { |a, b| a <=> b }
